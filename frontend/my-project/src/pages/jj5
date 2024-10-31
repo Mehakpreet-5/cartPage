@@ -1,0 +1,231 @@
+
+// import React from 'react';
+// import { useCart } from './CartContext'; // Adjust path as necessary
+// import Footer from './footer';
+
+// const Cart = () => {
+//   const { cartItems, setCartItems } = useCart(); // Ensure setCartItems is included
+
+//   const removeFromCart = (index) => {
+//     setCartItems((prevItems) => prevItems.filter((_, i) => i !== index));
+//   };
+
+//   const total = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0); // Convert to number
+
+
+
+
+//   const handlePayment = async () => {
+//     const response = await fetch('/api/create-order', { // Ensure this matches your backend route
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({ amount: total, currency: 'INR' }),
+//     });
+
+//     const orderData = await response.json();
+
+//     if (!orderData.id) {
+//       alert('Failed to create order');
+//       return;
+//     }
+
+//     const options = {
+//       key: 'YOUR_RAZORPAY_KEY_ID', // Enter the Key ID generated from the Dashboard
+//       amount: orderData.amount, // Amount is in currency subunits. Hence, multiply by 100
+//       currency: orderData.currency,
+//       name: 'Your Company Name',
+//       description: 'Test Transaction',
+//       order_id: orderData.id, // Pass the `id` obtained in the previous step
+//       handler: function (response) {
+//         alert('Payment successful! Payment ID: ' + response.razorpay_payment_id);
+//         // Here, you might want to save the order in your database or perform any other actions
+//       },
+//       prefill: {
+//         name: 'Customer Name',
+//         email: 'customer@example.com',
+//         contact: '9999999999',
+//       },
+//       notes: {
+//         address: 'Customer address',
+//       },
+//       theme: {
+//         color: '#F37254',
+//       },
+//     };
+
+//     const razorpay = new window.Razorpay(options);
+//     razorpay.open();
+  
+//     const updateQuantity = (id, change) => {
+//           setCartItems(items =>
+//             items.map(item =>
+//               item.id === id
+//                 ? { ...item, quantity: Math.max(0, item.quantity + change) }
+//                 : item
+//             ).filter(item => item.quantity > 0)
+//           )
+//         }
+      
+//         const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+//   };
+//   return (
+//     <> <div className='flex flex-row '>
+//       <div className="mt-16 px-4 w-full lg:w-3/6 mx-auto ">
+//         <h1 className="text-5xl md:text-4xl font-bold mb-4 fontt">Your Cart</h1>
+//         {cartItems.length === 0 ? (
+//           <p className="text-xl">Your cart is empty!</p>
+//         ) : (
+//           <div className="overflow-x-auto">
+//             <table className="min-w-full border border-gray-300">
+//               <thead>
+//                 <tr className="bg-gray-100">
+//                   <th className="py-2 border-b">Item</th>
+//                   <th className="py-2 border-b">Name</th>
+//                   <th className="py-2 border-b">Price</th>
+//                   <th className="py-2 border-b">Action</th> {/* New column for actions */}
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {cartItems.map((item, index) => (
+//                   <tr key={index} className="hover:bg-gray-50">
+//                     <td className="py-3 border-b">
+//                       <img src={item.image} alt={item.name} className="h-14 w-20 rounded-lg ml-6" />
+//                     </td>
+//                     <td className="py-4 border-b">
+//                       <h2 className="text-lg md:text-xl font-semibold">{item.name}</h2>
+//                     </td>
+//                     <td className="py-4 border-b">
+//                       <p className="text-lg">
+//                         {/* {item.price || 'N/A'} */}
+//                         ${item.price.toFixed(2)}
+//                         </p>
+//                     </td>
+//                     <td className="py-4 border-b">
+//                       <button
+//                         onClick={() => removeFromCart(index)}
+//                         className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+//                       >
+//                         x
+//                       </button>
+//                     </td>
+//                   </tr>
+//                 ))}
+//               </tbody>
+//             </table>
+//           </div>
+//         )}
+        
+//       </div>
+//       {cartItems.length > 0 && (
+//           <div className="h-96 w-64 bg-yellow-100 bg-opacity-20 flex items-center mx-auto mt-4">
+//             <div className="m-9 space-y-2">
+//               <h1 className="mt-4 font-bold text-orange-500 text-4xl">Total: <span>${total.toFixed(2)}</span></h1>
+//               <h3 className="text-xl">Delivery</h3>
+//               <h4 className="text-base">Standard Delivery (Free)</h4>
+//               <button
+//                 onClick={handlePayment}
+//                 className="bg-orange-500 text-white w-36 p-2 cursor-pointer mt-3"
+//               >
+//                 Checkout
+//               </button>
+//               <h2 className="text-xl">We Accept</h2>
+//             </div>
+//           </div>
+//         )} </div>
+//       <Footer />
+//     </>
+//   );
+// };
+
+// export default Cart;
+
+
+import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMinus, faPlus, faTrash, faArrowLeft } from '@fortawesome/free-solid-svg-icons'; // Added faArrowLeft import
+
+export default function CartPage() {
+  const [cartItems, setCartItems] = useState([]);
+
+  // Load cart from localStorage on component mount
+  useEffect(() => {
+    const storedCart = localStorage.getItem('cart');
+    if (storedCart) {
+      setCartItems(JSON.parse(storedCart));
+    }
+  }, []);
+
+  // Update localStorage whenever cartItems changes
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  const updateQuantity = (id, change) => {
+    setCartItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === id
+          ? { ...item, quantity: Math.max(0, item.quantity + change) }
+          : item
+      ).filter((item) => item.quantity > 0) // Remove items with quantity <= 0
+    );
+  };
+
+  const removeItem = (id) => {
+    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+  };
+
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const backToMenu = () => {
+    window.history.back(); // Navigate back to the previous page
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Your Cart</h1>
+      {cartItems.length === 0 ? (
+        <p className="text-lg">Your cart is empty.</p>
+      ) : (
+        <div className="space-y-4">
+          {cartItems.map((item) => (
+            <div key={item.id} className="border rounded-lg p-4 shadow-md">
+              <h2 className="text-lg font-semibold">{item.name}</h2>
+              <p className="text-sm text-gray-600">{item.description}</p>
+              <p className="text-lg font-semibold mt-2">
+                ${item.price.toFixed(2)} x {item.quantity}
+              </p>
+              <p className="text-lg font-bold mt-1">
+                Subtotal: ${(item.price * item.quantity).toFixed(2)}
+              </p>
+              <div className="flex justify-between items-center mt-4">
+                <div className="flex items-center">
+                  <button onClick={() => updateQuantity(item.id, -1)} className="p-2">
+                    <FontAwesomeIcon icon={faMinus} className="h-4 w-4" />
+                  </button>
+                  <span className="mx-2 text-lg font-semibold">{item.quantity}</span>
+                  <button onClick={() => updateQuantity(item.id, 1)} className="p-2">
+                    <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
+                  </button>
+                </div>
+                <button onClick={() => removeItem(item.id)} className="p-2 text-red-600">
+                  <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+          <div className="text-2xl font-bold mt-6">
+            Total: ${total.toFixed(2)}
+          </div>
+        </div>
+      )}
+      <div className="mt-8">
+        <button onClick={backToMenu} className="flex items-center p-2 bg-blue-500 text-white rounded">
+          <FontAwesomeIcon icon={faArrowLeft} className="mr-2 h-4 w-4" /> {/* Back button with arrow */}
+          Back to Menu
+        </button>
+      </div>
+    </div>
+  );
+}
