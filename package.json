@@ -1,0 +1,20 @@
+{
+  "name": "cartt",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "build": "react-scripts build"
+
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://Mehakpreet-5.github.io/try-cart",
+  "dependencies": {
+    "gh-pages": "^6.2.0"
+  },
+  "devDependencies": {},
+  "keywords": []
+}
